@@ -1,9 +1,9 @@
 package com.geekstone.testtech.api.controllers;
 
 import com.geekstone.testtech.application.dto.CreatePersonRequest;
-import com.geekstone.testtech.application.dto.PersonDTO;
 import com.geekstone.testtech.application.dto.PersonResponse;
-import com.geekstone.testtech.application.services.PersonApplicationService;
+import com.geekstone.testtech.application.services.commands.PersonCommandService;
+import com.geekstone.testtech.application.services.queries.PersonQueryService;
 import com.geekstone.testtech.domain.entities.Person;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,17 +16,20 @@ import java.util.List;
 public class PersonController {
 
     @Autowired
-    private PersonApplicationService personApplicationService;
+    private PersonCommandService personCommandService;
+
+    @Autowired
+    PersonQueryService personQueryService;
 
     @PostMapping
     public ResponseEntity<PersonResponse> createPerson(@RequestBody CreatePersonRequest request) {
-        PersonResponse response = personApplicationService.createPerson(request);
+        PersonResponse response = personCommandService.createPerson(request);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
     public ResponseEntity<List<Person>> getAllPersons() {
-        List<Person> persons = personApplicationService.getAllPersons();
+        List<Person> persons = personQueryService.getAllPersons();
         return ResponseEntity.ok(persons);
     }
 
@@ -38,7 +41,7 @@ public class PersonController {
             @RequestParam String dateOfBirth) {
 
         // Appeler le service pour vérifier l'existence avec conversion de date intégrée
-        double score = personApplicationService.verifyPersonExistence(identityNumber, firstName, lastName, dateOfBirth);
+        double score = personQueryService.verifyPersonExistence(identityNumber, firstName, lastName, dateOfBirth);
 
         return ResponseEntity.ok(score);
     }
