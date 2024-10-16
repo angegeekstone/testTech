@@ -2,13 +2,19 @@ package com.geekstone.testtech.domain.services;
 
 import com.geekstone.testtech.application.dto.PersonDTO;
 import com.geekstone.testtech.domain.entities.Person;
+import com.geekstone.testtech.domain.exceptions.InvalidIdentityNumberException;
+import com.geekstone.testtech.domain.repositories.PersonRepository;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
 
 @Service
 public class PersonDomainService {
+
+    @Autowired
+    private PersonRepository personRepository;
 
     // Formatter pour convertir LocalDate en String
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -40,5 +46,19 @@ public class PersonDomainService {
 
         // Calcul du score moyen
         return (firstNameScore + lastNameScore + dateOfBirthScore) / 3;
+    }
+
+    public boolean isPersonExist(String identityNumber) {
+        return personRepository.findByIdentityNumber(identityNumber).isPresent();
+    }
+
+    // Méthode pour valider le format du numéro d'identité
+    public void validateIdentityNumberFormat(String identityNumber) {
+        // Le format doit commencer par 'CI' suivi de 9 chiffres
+        String regex = "CI\\d{9}";
+
+        if (!identityNumber.matches(regex)) {
+            throw new InvalidIdentityNumberException("Le numéro d'identité est invalide. Il doit être sur la forme CI suivie de 9 chiffres.");
+        }
     }
 }
